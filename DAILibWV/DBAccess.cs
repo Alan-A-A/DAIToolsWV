@@ -9,8 +9,13 @@ using System.Data.SQLite;
 using System.Windows.Forms;
 using DAILibWV.Frostbite;
 
+//TODO: move all static SQL commands into external files including schema creation etc. .
+//This will reduce the amount of duplicate code e.g the code for recreating a table.
 namespace DAILibWV
 {
+    /// <summary>
+    ///  SQlite V3 utility class.
+    /// </summary>
     public static class DBAccess
     {
         public static string dbpath = Path.GetDirectoryName(Application.ExecutablePath) + "\\database.sqlite";
@@ -199,8 +204,16 @@ namespace DAILibWV
             return (File.Exists(dbpath));
         }
 
+        /// <summary>
+        /// Creates a new db-file. Existing file will be overwritten.
+        /// This creates a table "settings" with two TEXT columns: key, value.
+        /// The first row has the following pair ('isNew', '1').
+        /// </summary>
         public static void CreateDataBase()
         {
+            //TODO: check if the if statement is doing its purpose: if file exists, delete it.
+            //Currently, it looks like the file is not deleted. Furthermore, why check if a new
+            //DB has other tables inside??
             if (!File.Exists(dbpath))
                 File.Delete(dbpath);
             SQLiteConnection.CreateFile(dbpath);
@@ -216,6 +229,10 @@ namespace DAILibWV
             con.Close();
         }
 
+        /// <summary>
+        /// Parses settings from the settings table in the DB and saves them into the
+        /// Dictionary <see cref="GlobalStuff.settings"/>.
+        /// </summary>
         public static void LoadSettings()
         {
             SQLiteConnection con = GetConnection();
@@ -227,6 +244,10 @@ namespace DAILibWV
             con.Close();
         }
 
+        /// <summary>
+        /// Saves settings from the Dictionary <see cref="GlobalStuff.settings"/> into
+        /// the DB table settings. Old settings table will be dropped if exists.
+        /// </summary>
         public static void SaveSettings()
         {
             SQLiteConnection con = GetConnection();
@@ -239,18 +260,30 @@ namespace DAILibWV
             LoadSettings();
         }
 
+        /// <summary>
+        /// Recreates the table sbfiles. The old table is dropped if it exists.
+        /// </summary>
+        /// <param name="con">The SQLiteConnection object to use for the sql command.</param>
         public static void ClearSBFilesdb(SQLiteConnection con)
         {
             SQLCommand("DROP TABLE IF EXISTS sbfiles", con);
             SQLCommand("CREATE TABLE sbfiles (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, type TEXT)", con);
         }
 
+        /// <summary>
+        /// Recreates the table tocfiles. The old table is dropped if it exists.
+        /// </summary>
+        /// <param name="con">The SQLiteConnection object to use for the sql command.</param>
         public static void ClearTOCFilesdb(SQLiteConnection con)
         {
             SQLCommand("DROP TABLE IF EXISTS tocfiles", con);
             SQLCommand("CREATE TABLE tocfiles (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, md5 TEXT, incas TEXT, type TEXT)", con);
         }
 
+        /// <summary>
+        /// Recreates the table ebxlut. The old table is dropped if it exists.
+        /// </summary>
+        /// <param name="con">The SQLiteConnection object to use for the sql command.</param>
         public static void ClearEBXLookUpTabledb(SQLiteConnection con)
         {
             SQLCommand("DROP TABLE IF EXISTS ebxlut", con);
@@ -259,12 +292,20 @@ namespace DAILibWV
             + "bundlepath TEXT, offset INT, size INT, isbase TEXT, isdelta TEXT, tocpath TEXT, incas TEXT, filetype TEXT)", con);
         }
 
+        /// <summary>
+        /// Recreates the table globalchunks. The old table is dropped if it exists.
+        /// </summary>
+        /// <param name="con">The SQLiteConnection object to use for the sql command.</param>
         public static void ClearGlobalChunkdb(SQLiteConnection con)
         {
             SQLCommand("DROP TABLE IF EXISTS globalchunks", con);
             SQLCommand("CREATE TABLE globalchunks (idx INTEGER PRIMARY KEY AUTOINCREMENT, tocfile INTEGER, id TEXT, sha1 TEXT, offset INT, size INT)", con);
         }
 
+        /// <summary>
+        /// Recreates the tables bundles, res and chunks. Any old tables are dropped if existing.
+        /// </summary>
+        /// <param name="con">The SQLiteConnection object to use for the sql command.</param>
         public static void ClearBundlesdb(SQLiteConnection con)
         {
             SQLCommand("DROP TABLE IF EXISTS bundles", con);
@@ -279,6 +320,13 @@ namespace DAILibWV
 
         #region add stuff
 
+        /// <summary>
+        /// Writes the given uint array representing SHA1 value into the sh1db DB table.
+        /// The uint are appended as 8 hex values each (4 Bytes).
+        /// </summary>
+        /// <param name="entry">uint array representing a SHA1.</param>
+        /// <param name="type"> TODO </param>
+        /// <param name="con">The <see cref="SQLiteConnection"/> object to be used for the sql command.</param>
         public static void AddSHA1(uint[] entry, string type, SQLiteConnection con)
         {
             StringBuilder sb = new StringBuilder();
@@ -287,6 +335,16 @@ namespace DAILibWV
             SQLCommand("INSERT INTO sha1db VALUES ('" + sb.ToString() + "', '" + type + "')", con);
         }
 
+        //TODO: clarify/research about toc terms.
+        /// <summary>
+        /// Writes information about a toc into the globalchunks DB table.
+        /// </summary>
+        /// <param name="tocid">int id of a toc item.</param>
+        /// <param name="id">byte array representing the id of the item. Will be converted to hex then written to DB.</param>
+        /// <param name="sha1">byte array representing SHA1 of the item. Will be converted to hex then written to DB.</param>
+        /// <param name="offset">int representing the offset of the item in the toc.</param>
+        /// <param name="size">int representing the size of the item.</param>
+        /// <param name="con">The <see cref="SQLiteConnection"/> object to be used for the sql command.</param>
         public static void AddGlobalChunk(int tocid, byte[] id, byte[] sha1, int offset, int size, SQLiteConnection con)
         {
             StringBuilder sb = new StringBuilder();
@@ -300,11 +358,25 @@ namespace DAILibWV
             SQLCommand("INSERT INTO globalchunks (tocfile, id, sha1, offset, size) VALUES (" + tocid + ",'" + sb.ToString() + "','" + sb2.ToString() + "', " + offset + "," + size + ")", con);
         }
 
+        /// <summary>
+        /// Writes a sbfile's path into the sbfiles DB table.
+        /// </summary>
+        /// <param name="path">String representing the path to the sbfile.</param>
+        /// <param name="type">TODO</param>
+        /// <param name="con">The <see cref="SQLiteConnection"/> object to be used for the sql command.</param>
         public static void AddSBFile(string path, string type, SQLiteConnection con)
         {
             SQLCommand("INSERT INTO sbfiles (path, type) VALUES ('" + path + "','" + type + "')", con);
         }
 
+        //TODO: clarify/research about CAS terms.
+        /// <summary>
+        /// Writes a tocfile's path into the tocfiles DB table. The type and md5 value of the file are also written.
+        /// Additionall, a boolean indicating whether the tocfile is in a CAS file.
+        /// </summary>
+        /// <param name="path">String representing the path to the tocfile.</param>
+        /// <param name="type">TODO</param>
+        /// <param name="con">The <see cref="SQLiteConnection"/> object to be used for the sql command.</param>
         public static void AddTOCFile(string path, string type, SQLiteConnection con)
         {
             string md5 = Helpers.ByteArrayToHexString(Helpers.ComputeHash(path));
@@ -317,17 +389,38 @@ namespace DAILibWV
             SQLCommand("INSERT INTO tocfiles (path, md5, incas, type) VALUES ('" + path + "', '" + md5 + "','" + incas + "','" + type + "')", con);
         }
 
+        /// <summary>
+        /// Writes a casfile's path into the casfiles DB table.
+        /// </summary>
+        /// <param name="path">String representing the path to the casfile.</param>
+        /// <param name="type">TODO</param>
+        /// <param name="con">The <see cref="SQLiteConnection"/> object to be used for the sql command.</param>
         public static void AddCASFile(string path, string type, SQLiteConnection con)
         {
             SQLCommand("INSERT INTO casfiles VALUES ('" + path + "','" + type + "')", con);
         }
 
+        /// <summary>
+        /// Writes information about a bundle resource into the res DB table.
+        /// </summary>
+        /// <param name="name">the name of the resouce.</param>
+        /// <param name="sha1">SHA1 bytes of the resource. Will be converted to hex string then written to DB.</param>
+        /// <param name="rtype">resource-type's bytes. Will be converted to hex string then written to DB.</param>
+        /// <param name="bundleid">the bundle id as an int</param>
+        /// <param name="con">The <see cref="SQLiteConnection"/> object to be used for the sql command.</param>
         public static void AddRESFile(string name, byte[] sha1, byte[] rtype, int bundleid, SQLiteConnection con)
         {
             name = name.Replace("'", "");//lolfix
             SQLCommand("INSERT INTO res VALUES ('" + name + "','" + Helpers.ByteArrayToHexString(sha1) + "', '" + Helpers.ByteArrayToHexString(rtype) + "', " + bundleid + ")", con);
         }
 
+        /// <summary>
+        /// Writes information about a bundle chunk into the chunks DB table.
+        /// </summary>
+        /// <param name="id">id bytes of the chunk. Will be converted to hex string then written to DB.</param>
+        /// <param name="sha1">SHA1 bytes of the chunk. Will be converted to hex string then written to DB.</param>
+        /// <param name="bundleid">the bunlde id as an int</param>
+        /// <param name="con">The <see cref="SQLiteConnection"/> object to be used for the sql command.</param>
         public static void AddChunk(byte[] id, byte[] sha1, int bundleid, SQLiteConnection con)
         {
             SQLCommand("INSERT INTO chunks VALUES ('" + Helpers.ByteArrayToHexString(id) + "','" + Helpers.ByteArrayToHexString(sha1) + "'," + bundleid + ")", con);
