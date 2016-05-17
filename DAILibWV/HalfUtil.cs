@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace DAILibWV
 {
+    /// <summary>
+    /// It seems this class is taken/inspired from/by SlimDX.
+    /// Helper class to perform Half/Float conversion.
+    /// </summary>
+    //TODO check SlimDX and update documentation.
     public static class HalfUtils
     {
         private static readonly ushort[] FloatToHalfBaseTable;
