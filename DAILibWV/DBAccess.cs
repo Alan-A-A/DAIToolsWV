@@ -426,6 +426,14 @@ namespace DAILibWV
             SQLCommand("INSERT INTO chunks VALUES ('" + Helpers.ByteArrayToHexString(id) + "','" + Helpers.ByteArrayToHexString(sha1) + "'," + bundleid + ")", con);
         }
 
+        /// <summary>
+        /// Writes a bundle into the bundles DB table.
+        /// </summary>
+        /// <param name="tocid">id of the bundle in the toc file.</param>
+        /// <param name="incas">indicates whether it is in a cas file.</param>
+        /// <param name="b">The <see cref="Bundle"/> object.</param>
+        /// <param name="info">The <see cref="TOCFile.TOCBundleInfoStruct"/> object containing information about the bundle.</param>
+        /// <param name="con">The <see cref="SQLiteConnection"/> object to be used for the sql command.</param>
         public static void AddBundle(int tocid, bool incas, Bundle b, TOCFile.TOCBundleInfoStruct info, SQLiteConnection con)
         {
             Debug.LogLn(" EBX:" + b.ebx.Count + " RES:" + b.res.Count + " CHUNK:" + b.chunk.Count, true);
@@ -537,6 +545,11 @@ namespace DAILibWV
 
         private static List<AddEBXHelpStruct> aehelp;
 
+        /// <summary>
+        /// Writes information about an EBX into the ebxlut DB table.
+        /// </summary>
+        /// <param name="ebx">The <see cref="EBXInformation"/> object containing information about an EBX.</param>
+        /// <param name="con">The <see cref="SQLiteConnection"/> object to be used for the sql command.</param>
         public static void AddEBXLUTFile(EBXInformation ebx, SQLiteConnection con)
         {
             string ftype = "b";
@@ -594,7 +607,11 @@ namespace DAILibWV
         #endregion
 
         #region get specific stuff
-
+        /// <summary>
+        /// Retrieves game files from the specified table in the DB.
+        /// </summary>
+        /// <param name="table">The name of the table to retrieve game files from.</param>
+        /// <returns>An array of <see cref="string"/> objects representing game files names.</returns>
         public static string[] GetGameFiles(string table)
         {
             List<string> result = new List<string>();
@@ -607,6 +624,14 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves game files from the DB using the provided type. The result will be filtered according to the provided parameters.
+        /// </summary>
+        /// <param name="type">Type of the files to retrieve. This is actually the DB table name containing the files.</param>
+        /// <param name="withBase">True for base game files, false otherwise.</param>
+        /// <param name="withDLC">True for DLC game files, false otherwise.</param>
+        /// <param name="withPatch">True for game patch files, false otherwise.</param>
+        /// <returns>An array of <see cref="string"/> representing game files.</returns>
         public static string[] GetFiles(string type, bool withBase, bool withDLC, bool withPatch)
         {
             string[] list = DBAccess.GetGameFiles(type);
@@ -640,6 +665,10 @@ namespace DAILibWV
             return list;
         }
 
+        /// <summary>
+        /// Retrieves all bundle informations from the DB.
+        /// </summary>
+        /// <returns>An array of <see cref="BundleInformation"/> objects.</returns>
         public static BundleInformation[] GetBundleInformation()
         {
             List<BundleInformation> result = new List<BundleInformation>();
@@ -679,6 +708,11 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves a bundle information by the given index (id).
+        /// </summary>
+        /// <param name="index">Represents the id of the bundle (index in the toc file).</param>
+        /// <returns>The <see cref="BundleInformation"/> object with the given index.</returns>
         public static BundleInformation GetBundleInformationByIndex(int index)
         {
             BundleInformation result = new BundleInformation();
@@ -716,6 +750,11 @@ namespace DAILibWV
             return result;
         }
         
+        /// <summary>
+        /// Retrieves a bundle information from the DB by the given path (frostid).
+        /// </summary>
+        /// <param name="path">Represents bundle's frostid./></param>
+        /// <returns>The <see cref="BundleInformation"/> object with the given frostid.</returns>
         public static BundleInformation[] GetBundleInformationById(string path)
         {
             List<BundleInformation> result = new List<BundleInformation>();
@@ -755,6 +794,11 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves all EBX informations from the DB table ebxlut.
+        /// </summary>
+        /// <param name="label">UI label to be updated to indicate progress for the user.</param>
+        /// <returns>An array of <see cref="EBXInformation"/> objects.</returns>
         public static EBXInformation[] GetEBXInformation(ToolStripStatusLabel label)
         {
             List<EBXInformation> result = new List<EBXInformation>();
@@ -803,6 +847,11 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves all EBX informations from the DB table ebxlut with the matching sha1.
+        /// </summary>
+        /// <param name="sha1">Represents EBX's sha1 or basesha1 or deltasha1.</param>
+        /// <returns>An array of <see cref="EBXInformation"/> objects with the given sha1.</returns>
         public static EBXInformation[] GetEBXInformationBySHA1(string sha1)
         {
             List<EBXInformation> result = new List<EBXInformation>();
@@ -847,6 +896,11 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves all EBX informations from the DB table ebxlut with the matching path.
+        /// </summary>
+        /// <param name="path">Represents the path of the EBX in the DB.</param>
+        /// <returns>An array of <see cref="EBXInformation"/> objects with the matching path.</returns>
         public static EBXInformation[] GetEBXInformationByPath(string path)
         {
             List<EBXInformation> result = new List<EBXInformation>();
@@ -891,6 +945,11 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves resources' information from the DB with the given sha1.
+        /// </summary>
+        /// <param name="sha1">The sha1 to be used for search.</param>
+        /// <returns>An array of <see cref="RESInformation"/> objects with the given sha1.</returns>
         public static RESInformation[] GetRESInformationBySHA1(string sha1)
         {
             List<RESInformation> result = new List<RESInformation>();
@@ -932,6 +991,10 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves all resource types from the DB table res.
+        /// </summary>
+        /// <returns>An array of <see cref="string"/> representing the types.</returns>
         public static string[] GetUsedRESTypes()
         {
             List<string> result = new List<string>();
@@ -945,6 +1008,11 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves resource information by the given type.
+        /// </summary>
+        /// <param name="type">The resource type to be used for search.</param>
+        /// <returns>An array of <see cref="RESInformation"/> ojbects with the given type.</returns>
         public static RESInformation[] GetRESInformationsByType(string type)
         {
             List<RESInformation> result = new List<RESInformation>();
@@ -985,6 +1053,10 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves all texture informations from the DB table res.
+        /// </summary>
+        /// <returns>An array of <see cref="TextureInformation"/> objects of resources with rtype=A654495C</returns>
         public static TextureInformation[] GetTextureInformations()
         {
             List<TextureInformation> result = new List<TextureInformation>();
@@ -1006,7 +1078,11 @@ namespace DAILibWV
             return result.ToArray();
         }
 
-        
+        /// <summary>
+        /// Same as <see cref="GetTextureInformations"/> but filters the result by the given id.
+        /// </summary>
+        /// <param name="id">The id to be used for filtering the result.</param>
+        /// <returns>An array of <see cref="TextureInformation"/> objects with the given id.</returns>
         public static TextureInformation[] GetTextureInformationsById(string id)
         {
             List<TextureInformation> result = new List<TextureInformation>();
@@ -1028,6 +1104,11 @@ namespace DAILibWV
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves a toc file information with the given index (id) from the DB table tocfiles.
+        /// </summary>
+        /// <param name="index">The id to be used for search.</param>
+        /// <returns>The <see cref="TOCInformation"/> object with the given id.</returns>
         public static TOCInformation GetTocInformationByIndex(int index)
         {
             TOCInformation res = new TOCInformation();
@@ -1046,6 +1127,11 @@ namespace DAILibWV
             return res;
         }
 
+        /// <summary>
+        /// Retrieves a chunk information with the given id from the DB table chunks.
+        /// </summary>
+        /// <param name="id">The id to be used for search.</param>
+        /// <returns>The <see cref="ChunkInformation"/> object with the given id.</returns>
         public static ChunkInformation GetChunkInformationById(byte[] id)
         {
             ChunkInformation res = new ChunkInformation();
@@ -1064,6 +1150,9 @@ namespace DAILibWV
             return res;
         }
 
+        /// <summary>
+        /// Same as <see cref="GetChunkInformationById(byte[])"/> but uses sha1 instead of id.
+        /// </summary>
         public static ChunkInformation[] GetChunkInformationBySHA1(string sha1)
         {
             sha1 = sha1.ToUpper();
@@ -1087,6 +1176,10 @@ namespace DAILibWV
 
         #region initial scan stuff
 
+        /// <summary>
+        /// Initializes (or recreates) all DB tables. This includes saving global settings, writing files and bundle informations to DB. Takes a lot of time.
+        /// </summary>
+        /// <param name="path">The path to the game.</param>
         public static void StartScan(string path)
         {
             Debug.LogLn("Starting Scan...");
@@ -1109,6 +1202,9 @@ namespace DAILibWV
             Debug.LogLn("\n\n===============\nTime : " + sp.Elapsed.ToString() + "\n");
         }
         
+        /// <summary>
+        /// Scans game directory for SB and TOC files and writes informations about them to the DB.
+        /// </summary>
         private static void ScanFiles()
         {
             Debug.LogLn("Saving file paths into db...");
@@ -1139,6 +1235,9 @@ namespace DAILibWV
             con.Close();
         }
         
+        /// <summary>
+        /// Scans TOC files previously written to DB for bundles.
+        /// </summary>
         private static void ScanTOCsForBundles()
         {
             Debug.LogLn("Saving bundles into db...");
