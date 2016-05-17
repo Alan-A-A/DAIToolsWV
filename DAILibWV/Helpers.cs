@@ -12,8 +12,12 @@ using DAILibWV.Frostbite;
 
 namespace DAILibWV
 {
+    //TODO move compression/decompression functions to another class or use some framework to do that.
     public static class Helpers
     {
+        /// <summary>
+        /// wrapper class representing <see cref="BinaryReader.Read7BitEncodedInt"/>
+        /// </summary>
         public class BinaryReader7Bit : BinaryReader
         {
             public BinaryReader7Bit(Stream stream) : base(stream) { }
@@ -23,6 +27,9 @@ namespace DAILibWV
             }
         }
 
+        /// <summary>
+        /// Wrapper class representing <see cref="BinaryWriter.Write7BitEncodedInt(int)"/>
+        /// </summary>
         public class BinaryWriter7Bit : BinaryWriter
         {
             public BinaryWriter7Bit(Stream stream) : base(stream) { }
@@ -32,12 +39,21 @@ namespace DAILibWV
             }
         }
 
+        /// <summary>
+        /// Deletes the given file if it exists using <see cref="File.Exists(string)"/>.
+        /// </summary>
+        /// <param name="file">The file path to use.</param>
         public static void DeleteFileIfExist(string file)
         {
             if (File.Exists(file))
                 File.Delete(file);
         }
 
+        /// <summary>
+        /// Runs the given file with the given command (arguments), <see cref="System.Diagnostics.Process"/> and <see cref="System.Diagnostics.ProcessStartInfo"/>.
+        /// </summary>
+        /// <param name="file">The file to run.</param>
+        /// <param name="command">The arguments to be passed to the file.</param>
         public static void RunShell(string file, string command)
         {
             Process process = new System.Diagnostics.Process();
@@ -53,6 +69,10 @@ namespace DAILibWV
             process.WaitForExit();
         }
 
+        /// <summary>
+        /// Compares two given byte arrays.
+        /// </summary>
+        /// <returns>True if both arrays have same length and contain same bytes in same order, otherwise false.</returns>
         public static bool ByteArrayCompare(byte[] b1, byte[] b2)
         {
             if(b1 == null || b2 == null || b1.Length != b2.Length)
@@ -63,11 +83,19 @@ namespace DAILibWV
             return true;
         }
 
+        /// <summary>
+        /// Writes the given integer as bytes into the given stream object, <see cref="BitConverter.GetBytes(int)"/> and <see cref="Stream.Write(byte[], int, int)"/>.
+        /// </summary>
+        /// <param name="s"><see cref="Stream"/></param>
+        /// <param name="i">The integer to be written.</param>
         public static void WriteInt(Stream s, int i)
         {
             s.Write(BitConverter.GetBytes(i), 0, 4);
         }
 
+        /// <summary>
+        /// Same as <see cref="WriteInt(Stream, int)"/> but writes the integer in little endian byte order.
+        /// </summary>
         public static void WriteLEInt(Stream s, int i)
         {
             List<byte> t = new List<byte>(BitConverter.GetBytes(i));
@@ -75,11 +103,16 @@ namespace DAILibWV
             s.Write(t.ToArray(), 0, 4);
         }
 
+        /// <summary>
+        /// Same as <see cref="WriteInt(Stream, int)"/> but for uint.
+        /// </summary>
         public static void WriteUInt(Stream s, uint i)
         {
             s.Write(BitConverter.GetBytes(i), 0, 4);
         }
 
+        /// <summary>
+        /// Same as <see cref="WriteLEInt(Stream, int)"/> but for uint.
         public static void WriteLEUInt(Stream s, uint i)
         {
             List<byte> t = new List<byte>(BitConverter.GetBytes(i));
@@ -87,6 +120,9 @@ namespace DAILibWV
             s.Write(t.ToArray(), 0, 4);
         }
 
+        /// <summary>
+        /// Same as <see cref="WriteLEUInt(Stream, uint)"/> but for ushort.
+        /// </summary>
         public static void WriteLEUShort(Stream s, ushort u)
         {
             byte[] buff = BitConverter.GetBytes(u);
@@ -94,6 +130,9 @@ namespace DAILibWV
             s.Write(buff, 0, 2);
         }
 
+        /// <summary>
+        /// Reads an integer from the given stream (4 bytes).
+        /// </summary>
         public static int ReadInt(Stream s)
         {
             byte[] buff = new byte[4];
@@ -101,6 +140,9 @@ namespace DAILibWV
             return BitConverter.ToInt32(buff, 0);
         }
 
+        /// <summary>
+        /// Reads an uint from the given stream (4 bytes).
+        /// </summary>
         public static uint ReadUInt(Stream s)
         {
             byte[] buff = new byte[4];
@@ -108,6 +150,9 @@ namespace DAILibWV
             return BitConverter.ToUInt32(buff, 0);
         }
 
+        /// <summary>
+        /// Reads a short from the given stream (2 bytes).
+        /// </summary>
         public static short ReadShort(Stream s)
         {
             byte[] buff = new byte[2];
@@ -115,6 +160,9 @@ namespace DAILibWV
             return BitConverter.ToInt16(buff, 0);
         }
 
+        /// <summary>
+        /// Reads an ushort from the given stream (2 bytes).
+        /// </summary>
         public static ushort ReadUShort(Stream s)
         {
             byte[] buff = new byte[2];
@@ -122,6 +170,9 @@ namespace DAILibWV
             return BitConverter.ToUInt16(buff, 0);
         }
 
+        /// <summary>
+        /// Reads a long from the given stream (8 bytes).
+        /// </summary>
         public static long ReadLong(Stream s)
         {
             byte[] buff = new byte[8];
@@ -129,6 +180,9 @@ namespace DAILibWV
             return BitConverter.ToInt64(buff, 0);
         }
 
+        /// <summary>
+        /// Reads an ulong from the given stream (8 bytes).
+        /// </summary>
         public static ulong ReadULong(Stream s)
         {
             byte[] buff = new byte[8];
@@ -136,6 +190,9 @@ namespace DAILibWV
             return BitConverter.ToUInt64(buff, 0);
         }
 
+        /// <summary>
+        /// Reads a float from the given stream (4 bytes), <see cref="BitConverter.ToSingle(byte[], int)"/>.
+        /// </summary>
         public static float ReadFloat(Stream s)
         {
             byte[] buff = new byte[4];
@@ -143,6 +200,11 @@ namespace DAILibWV
             return BitConverter.ToSingle(buff, 0);
         }
 
+        /// <summary>
+        /// Reads an integer in little endian byte order from the given stream.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
         public static int ReadLEInt(Stream s)
         {
             byte[] buff = new byte[4];
@@ -151,6 +213,9 @@ namespace DAILibWV
             return BitConverter.ToInt32(buff, 0);
         }
 
+        /// <summary>
+        /// Same as <see cref="ReadLEInt(Stream)"/> but for uint.
+        /// </summary>
         public static uint ReadLEUInt(Stream s)
         {
             byte[] buff = new byte[4];
@@ -159,6 +224,9 @@ namespace DAILibWV
             return BitConverter.ToUInt32(buff, 0);
         }
 
+        /// <summary>
+        /// Same as <see cref="ReadLEInt(Stream)"/> but for short.
+        /// </summary>
         public static short ReadLEShort(Stream s)
         {
             byte[] buff = new byte[2];
@@ -167,6 +235,9 @@ namespace DAILibWV
             return BitConverter.ToInt16(buff, 0);
         }
 
+        /// <summary>
+        /// Same as <see cref="ReadLEInt(Stream)"/> but for ushort.
+        /// </summary>
         public static ushort ReadLEUShort(Stream s)
         {
             byte[] buff = new byte[2];
@@ -175,6 +246,9 @@ namespace DAILibWV
             return BitConverter.ToUInt16(buff, 0);
         }
 
+        /// <summary>
+        /// <see cref="Stream.Read(byte[], int, int)"/>.
+        /// </summary>
         public static byte[] ReadFull(Stream s, uint size)
         {
             byte[] buff = new byte[size];
@@ -183,6 +257,10 @@ namespace DAILibWV
             return buff;
         }
 
+        /// <summary>
+        /// Reads the stream byte by byte, <see cref="Stream.ReadByte"/>.
+        /// </summary>
+        /// <returns>String representing the char representation the read bytes.</returns>
         public static string ReadNullString(Stream s)
         {
             string res = "";
@@ -191,6 +269,9 @@ namespace DAILibWV
             return res;
         }
 
+        /// <summary>
+        /// writes the given string byte by byte into the given stream and appends 0 at the end.
+        /// </summary>
         public static void WriteNullString(Stream s, string t)
         {
             foreach (char c in t)
@@ -198,6 +279,9 @@ namespace DAILibWV
             s.WriteByte(0);
         }
 
+        /// <summary>
+        /// Reads LEB128 from the stream as ulong.
+        /// </summary>
         public static ulong ReadLEB128(Stream s)
         {
             ulong result = 0;
@@ -214,6 +298,9 @@ namespace DAILibWV
             }
         }
 
+        /// <summary>
+        /// Writes the given integer as LEB128 into the given stream.
+        /// </summary>
         public static void WriteLEB128(Stream s, int value)
         {
             int temp = value;
@@ -229,6 +316,9 @@ namespace DAILibWV
             }
         }
 
+        /// <summary>
+        /// TODO: is it a duplicate of <see cref="ByteArrayCompare(byte[], byte[])"/> ??
+        /// </summary>
         public static bool MatchByteArray(byte[] a1, byte[] a2)
         {
             if (a1.Length != a2.Length)
@@ -239,6 +329,9 @@ namespace DAILibWV
             return true;
         }
 
+        /// <summary>
+        /// Returns the byte array representation of the given hex string.
+        /// </summary>
         public static byte[] HexStringToByteArray(string hex)
         {
             return Enumerable.Range(0, hex.Length)
@@ -247,6 +340,9 @@ namespace DAILibWV
                              .ToArray();
         }
 
+        /// <summary>
+        /// Returns the byte array representation of the given string by casting each char in the string to a byte.
+        /// </summary>
         public static byte[] StringAsByteArray(string str)
         {
             MemoryStream m = new MemoryStream();
@@ -255,6 +351,11 @@ namespace DAILibWV
             return m.ToArray();
         }
 
+        /// <summary>
+        /// Returns the hex string representation of the given byte array.
+        /// </summary>
+        /// <param name="start">The start index in the byte array.</param>
+        /// <param name="len">The number of bytes to convert.</param>
         public static string ByteArrayToHexString(byte[] data, int start = 0, int len = 0)
         {
             if (data == null)
@@ -272,6 +373,9 @@ namespace DAILibWV
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Returns the string representation of the given byte array by casting each byte to char.
+        /// </summary>
         public static string ByteArrayAsString(byte[] data)
         {
             if (data == null)
@@ -281,7 +385,10 @@ namespace DAILibWV
                 sb.Append((char)b);
             return sb.ToString();
         }
-
+        
+        /// <summary>
+        /// Returns a string with the given number (count) of empty spaces.
+        /// </summary>
         public static string MakeTabs(int count)
         {
             StringBuilder sb = new StringBuilder();
@@ -399,6 +506,9 @@ namespace DAILibWV
             return m.ToArray();
         }
 
+        /// <summary>
+        /// Calcualtes MD5 of the given file, <see cref="MD5"/>"/>
+        /// </summary>
         public static byte[] ComputeHash(string filePath)
         {
             using (var md5 = MD5.Create())
@@ -407,6 +517,9 @@ namespace DAILibWV
             }
         }
 
+        /// <summary>
+        /// Calculates the FNV hash. See http://www.isthe.com/chongo/tech/comp/fnv/ .
+        /// </summary>
         public static int HashFNV1(string StrToHash, int hashseed = 5381, int hashprime = 33)
         {
             int Hash = hashseed;
@@ -418,6 +531,9 @@ namespace DAILibWV
             return Hash;
         }
 
+        /// <summary>
+        /// Decompiles LUA byte codes using an external program.
+        /// </summary>
         public static string DecompileLUAC(byte[] data)
         {
             MemoryStream m = new MemoryStream(data);
@@ -463,11 +579,17 @@ namespace DAILibWV
             return "";
         }
 
+        /// <summary>
+        /// Retrieves the file's path without extension.
+        /// </summary>
         public static string GetFileNameWithOutExtension(string path)
         {
             return Path.GetDirectoryName(path) + "\\" + Path.GetFileNameWithoutExtension(path);
         }
 
+        /// <summary>
+        /// Retrieves resource type as string by the given uint type from <see cref="ResTypes"/>.
+        /// </summary>
         public static string GetResType(uint type)
         {
             if (ResTypes.ContainsKey(type))
@@ -476,13 +598,17 @@ namespace DAILibWV
                 return "";
         }
 
+        /// <summary>
+        /// Helper for the waiting text...
+        /// </summary>
         public static string GetWaiter(int x)
         {
             string waiter = @"_./*\._./*\._./";
             int sublen = 8;
             return waiter.Substring(x % (waiter.Length - sublen) , sublen);
         }
-
+        
+        //TODO complete documentation. Below seems to handle the TreeView in the GUI.
         public static TreeNode AddPath(TreeNode t, string path, string sha1, char splitter = '/')
         {
             string[] parts = path.Split(splitter);
@@ -592,7 +718,9 @@ namespace DAILibWV
         }
 
 
-
+        /// <summary>
+        /// Returns part of the path starting from the given folder index (start).
+        /// </summary>
         public static string SkipSubFolder(string path, int start)
         {
             string[] parts = path.Split('\\');
